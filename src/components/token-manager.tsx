@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ export function TokenManager({ initialTokens }: { initialTokens: TokenRow[] }) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Could not create token");
+      track("Extension Token Created");
       setFresh(json.token as string);
       setTokens((prev) => [
         { id: json.id, name: json.name, prefix: json.prefix, created_at: json.created_at, last_used_at: null },
@@ -59,6 +61,7 @@ export function TokenManager({ initialTokens }: { initialTokens: TokenRow[] }) {
     try {
       const res = await fetch(`/api/extension/token?id=${encodeURIComponent(id)}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Could not revoke token");
+      track("Extension Token Revoked");
       setTokens((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -98,7 +101,14 @@ export function TokenManager({ initialTokens }: { initialTokens: TokenRow[] }) {
               <p className="text-sm font-medium">Copy this token now — it won&apos;t be shown again.</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 overflow-x-auto rounded bg-background px-2 py-1 text-xs">{fresh}</code>
-                <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(fresh)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(fresh);
+                    track("Extension Token Copied");
+                  }}
+                >
                   Copy
                 </Button>
               </div>

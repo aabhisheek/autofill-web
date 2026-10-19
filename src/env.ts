@@ -22,5 +22,9 @@ export const env = {
       process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` ||
       "http://localhost:3000"
     );
+  },
+  // Optional. When unset, all analytics calls become no-ops.
+  get mixpanelToken() {
+    return process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
   }
 };

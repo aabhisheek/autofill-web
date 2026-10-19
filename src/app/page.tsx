@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CloudCog, FileText, LayoutDashboard, Mail, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TrackLink } from "@/components/track-link";
 
 const features = [
   {
@@ -37,10 +38,14 @@ export default function LandingPage() {
         </div>
         <nav className="flex items-center gap-2">
           <Button asChild variant="ghost">
-            <Link href="/login">Log in</Link>
+            <TrackLink href="/login" trackEvent="Landing CTA Clicked" trackProperties={{ cta: "header_login" }}>
+              Log in
+            </TrackLink>
           </Button>
           <Button asChild>
-            <Link href="/signup">Get started</Link>
+            <TrackLink href="/signup" trackEvent="Landing CTA Clicked" trackProperties={{ cta: "header_get_started" }}>
+              Get started
+            </TrackLink>
           </Button>
         </nav>
       </header>
@@ -59,12 +64,22 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
             <Button asChild size="lg">
-              <Link href="/signup">
+              <TrackLink
+                href="/signup"
+                trackEvent="Landing CTA Clicked"
+                trackProperties={{ cta: "hero_create_dashboard" }}
+              >
                 Create your dashboard <ArrowRight className="h-4 w-4" />
-              </Link>
+              </TrackLink>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/login">I already have an account</Link>
+              <TrackLink
+                href="/login"
+                trackEvent="Landing CTA Clicked"
+                trackProperties={{ cta: "hero_existing_account" }}
+              >
+                I already have an account
+              </TrackLink>
             </Button>
           </div>
         </section>

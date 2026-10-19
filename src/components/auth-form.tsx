@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,11 +41,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
           }
         });
         if (error) throw error;
+        track("Signed Up", { method: "email", email_confirmed: Boolean(data.session) });
         if (data.session) router.push(redirectTo);
         else setNotice("Check your inbox to confirm your email address.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        track("Logged In", { method: "email" });
         router.push(redirectTo);
       }
       router.refresh();
@@ -58,11 +61,16 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function onGoogle() {
     setError(null);
     setLoading(true);
+    track("Auth Attempted", { method: "google", mode });
+    // The OAuth redirect leaves the page; flag it so AnalyticsProvider can
+    // fire "Logged In" once the callback establishes the session.
+    sessionStorage.setItem("mp_auth_pending", "google");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` }
     });
     if (error) {
+      sessionStorage.removeItem("mp_auth_pending");
       setError(error.message);
       setLoading(false);
     }
